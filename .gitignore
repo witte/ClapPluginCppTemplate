@@ -1,0 +1,6 @@
+# OS's
+.DS_Store
+
+# IDE's
+*.txt.user
+.idea/*
