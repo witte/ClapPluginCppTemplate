@@ -4,3 +4,4 @@
 # IDE's
 *.txt.user
 .idea/*
+build*
