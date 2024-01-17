@@ -17,6 +17,10 @@ add_library(${PROJECT_NAME} MODULE
 
 target_link_libraries(${PROJECT_NAME} PUBLIC clap clap-helpers)
 
+if (UNIX AND NOT APPLE)
+    target_link_libraries(${PROJECT_NAME} PUBLIC m)
+endif()
+
 if (APPLE)
     target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -pedantic)
 endif()

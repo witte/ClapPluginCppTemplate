@@ -1,5 +1,6 @@
 #pragma once
-
+#include <cmath>
+#include <math.h>
 
 namespace utils
 {
@@ -15,7 +16,7 @@ double decibelsToGain(double decibels)
 
 double gainToDecibels(double gain)
 {
-    return gain > double() ? std::max(minusInfinitydB, std::log10f(gain) * 20.0)
+    return gain > double() ? std::max(minusInfinitydB, std::log10(gain) * 20.0)
                            : minusInfinitydB;
 }
 

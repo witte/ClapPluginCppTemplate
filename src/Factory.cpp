@@ -1,5 +1,6 @@
 #include "Plugin.h"
 #include <iostream>
+#include <cstring>
 
 
 namespace
