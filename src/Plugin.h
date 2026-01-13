@@ -29,16 +29,16 @@ public:
     };
 
 
-    Plugin(const clap_host* host);
+    explicit Plugin(const clap_host* host);
     ~Plugin() override = default;
 
 
-    bool implementsAudioPorts() const noexcept override
+    [[nodiscard]] bool implementsAudioPorts() const noexcept override
     {
         return true;
     }
 
-    uint32_t audioPortsCount(bool /*isInput*/) const noexcept override
+    [[nodiscard]] uint32_t audioPortsCount(bool /*isInput*/) const noexcept override
     {
         return 1;
     }
@@ -46,17 +46,17 @@ public:
     bool audioPortsInfo(uint32_t index, bool isInput, clap_audio_port_info* info) const noexcept override;
 
 
-    bool implementsParams() const noexcept override
+    [[nodiscard]] bool implementsParams() const noexcept override
     {
         return true;
     }
 
-    bool isValidParamId(clap_id paramId) const noexcept override
+    [[nodiscard]] bool isValidParamId(clap_id paramId) const noexcept override
     {
         return paramId == gainPrmId_;
     }
 
-    uint32_t paramsCount() const noexcept override
+    [[nodiscard]] uint32_t paramsCount() const noexcept override
     {
         return 1;
     }

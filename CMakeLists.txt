@@ -22,6 +22,15 @@ if (APPLE)
 endif()
 
 
+target_precompile_headers(${PROJECT_NAME} PRIVATE
+        <clap/version.h>
+        <clap/clap.h>
+        <clap/plugin-features.h>
+        <clap/helpers/plugin.hh>
+        <clap/helpers/host-proxy.hxx>
+        <clap/helpers/plugin.hxx>
+        <iostream>
+)
 
 # Packaging
 if (APPLE)
