@@ -1,11 +1,4 @@
 module;
-// #include "Plugin.h"
-#include <clap/helpers/host-proxy.hxx>
-// #include <clap/helpers/plugin.hxx>
-// #include "Utils.h"
-#include <clap/version.h>
-#include <clap/plugin-features.h>
-
 export module Plugin;
 import Utils;
 import Clap;
@@ -17,15 +10,15 @@ export class GainPlugin : public Plugin<clap::helpers::MisbehaviourHandler::Term
 public:
     static constexpr const char* features[4] =
     {
-        CLAP_PLUGIN_FEATURE_AUDIO_EFFECT,
-        CLAP_PLUGIN_FEATURE_UTILITY,
-        CLAP_PLUGIN_FEATURE_STEREO,
+        mCLAP_PLUGIN_FEATURE_AUDIO_EFFECT,
+        mCLAP_PLUGIN_FEATURE_UTILITY,
+        mCLAP_PLUGIN_FEATURE_STEREO,
         nullptr
     };
 
     static constexpr clap_plugin_descriptor descriptor =
     {
-        .clap_version = CLAP_VERSION,
+        .clap_version = mCLAP_VERSION,
         .id = "your.reversed.domain.name.PluginName",
         .name = "Name of the plugin",
         .vendor = "You/your company name",
@@ -60,7 +53,7 @@ public:
         return true;
     }
 
-    [[nodiscard]] bool isValidParamId(clap_id paramId) const noexcept override
+    [[nodiscard]] bool isValidParamId(const clap_id paramId) const noexcept override
     {
         return paramId == gainPrmId_;
     }
@@ -94,8 +87,7 @@ private:
 
 
 GainPlugin::GainPlugin(const clap_host* host)
-    : Plugin<clap::helpers::MisbehaviourHandler::Terminate, clap::helpers::CheckingLevel::Maximal>(
-        &descriptor, host)
+    : Plugin(&descriptor, host)
 {
 }
 
@@ -105,11 +97,11 @@ bool GainPlugin::audioPortsInfo(const uint32_t index, bool /*isInput*/, clap_aud
         return false;
 
     info->id = 0;
-    info->in_place_pair = CLAP_INVALID_ID;
+    info->in_place_pair = mCLAP_INVALID_ID;
     strncpy(info->name, "main", sizeof(info->name));
     info->flags = CLAP_AUDIO_PORT_IS_MAIN;
     info->channel_count = 2;
-    info->port_type = CLAP_PORT_STEREO;
+    info->port_type = mCLAP_PORT_STEREO;
 
     return true;
 }
@@ -121,7 +113,7 @@ bool GainPlugin::paramsInfo(const uint32_t paramIndex, clap_param_info* info) co
 
     info->id = gainPrmId_;
     info->flags = CLAP_PARAM_IS_AUTOMATABLE;
-    strncpy(info->name, "GainHEHE", CLAP_NAME_SIZE);
+    strncpy(info->name, "Gain", CLAP_NAME_SIZE);
     strncpy(info->module, "", CLAP_NAME_SIZE);
     info->min_value = 0.0;
     info->max_value = 1.0;
@@ -202,7 +194,7 @@ clap_process_status GainPlugin::process(const clap_process* process) noexcept
         {
             const auto gainValue = reinterpret_cast<const clap_event_param_value*>(nextEvent);
 
-            if (nextEvent->space_id != CLAP_CORE_EVENT_SPACE_ID ||
+            if (nextEvent->space_id != mCLAP_CORE_EVENT_SPACE_ID ||
                 nextEvent->type != CLAP_EVENT_PARAM_VALUE)
             {
                 continue;
@@ -217,7 +209,7 @@ clap_process_status GainPlugin::process(const clap_process* process) noexcept
             }
 
             nextEventIndex++;
-            nextEvent = (nextEventIndex >= eventsSize)? nullptr : event->get(event, nextEventIndex);
+            nextEvent = nextEventIndex >= eventsSize? nullptr : event->get(event, nextEventIndex);
         }
 
         for (uint32_t channel = 0; channel < outputChannelsCount; ++channel)

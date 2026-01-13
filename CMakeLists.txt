@@ -27,8 +27,6 @@ include(cmake/Dependencies.cmake)
 
 
 add_library(${PROJECT_NAME} MODULE
-#    src/Utils.h
-#    src/Plugin.h
     src/Factory.cpp
 )
 
@@ -59,6 +57,9 @@ endif()
 
 
 #target_precompile_headers(${PROJECT_NAME} PRIVATE
+#        <clap/version.h>
+#        <clap/clap.h>
+#        <clap/plugin-features.h>
 #        <clap/helpers/plugin.hh>
 #        <clap/helpers/host-proxy.hxx>
 #        <clap/helpers/plugin.hxx>
