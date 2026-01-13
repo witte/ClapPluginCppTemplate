@@ -10,7 +10,7 @@ Plugin::Plugin(const clap_host* host)
 {
 }
 
-bool Plugin::audioPortsInfo(uint32_t index, bool /*isInput*/, clap_audio_port_info* info) const noexcept
+bool Plugin::audioPortsInfo(const uint32_t index, bool /*isInput*/, clap_audio_port_info* info) const noexcept
 {
     if (index != 0)
         return false;
@@ -25,7 +25,7 @@ bool Plugin::audioPortsInfo(uint32_t index, bool /*isInput*/, clap_audio_port_in
     return true;
 }
 
-bool Plugin::paramsInfo(uint32_t paramIndex, clap_param_info* info) const noexcept
+bool Plugin::paramsInfo(const uint32_t paramIndex, clap_param_info* info) const noexcept
 {
     if (paramIndex >= 1)
         return false;
@@ -41,7 +41,7 @@ bool Plugin::paramsInfo(uint32_t paramIndex, clap_param_info* info) const noexce
     return true;
 }
 
-bool Plugin::paramsValue(clap_id paramId, double* value) noexcept
+bool Plugin::paramsValue(const clap_id paramId, double* value) noexcept
 {
     if (paramId != gainPrmId_)
         return false;
@@ -50,14 +50,13 @@ bool Plugin::paramsValue(clap_id paramId, double* value) noexcept
     return true;
 }
 
-bool Plugin::paramsValueToText(clap_id paramId, double value, char* display, uint32_t size) noexcept
+bool Plugin::paramsValueToText(const clap_id paramId, const double value, char* const display, const uint32_t size) noexcept
 {
     if (paramId != gainPrmId_)
         return false;
 
-    const auto valueIndB = utils::gainToDecibels(utils::toExponentialCurve(value));
-
-    if (valueIndB <= utils::minusInfinitydB)
+    if (const auto valueIndB = utils::gainToDecibels(utils::toExponentialCurve(value));
+        valueIndB <= utils::minusInfinitydB)
     {
         snprintf(display, size, "-inf dB");
     }
@@ -69,7 +68,7 @@ bool Plugin::paramsValueToText(clap_id paramId, double value, char* display, uin
     return true;
 }
 
-bool Plugin::paramsTextToValue(clap_id paramId, const char* display, double* value) noexcept
+bool Plugin::paramsTextToValue(const clap_id paramId, const char* display, double* value) noexcept
 {
     if (paramId != gainPrmId_)
         return false;
@@ -80,11 +79,11 @@ bool Plugin::paramsTextToValue(clap_id paramId, const char* display, double* val
     return true;
 }
 
-bool Plugin::activate(double sampleRate, uint32_t /*minFrameCount*/, uint32_t /*maxFrameCount*/) noexcept
+bool Plugin::activate(const double sampleRate, uint32_t /*minFrameCount*/, uint32_t /*maxFrameCount*/) noexcept
 {
-    const auto samplesInOneMs = sampleRate / 1000;
-    const auto fadeLengthInMs = 5;
-    fadeLengthInSamples_ = samplesInOneMs * fadeLengthInMs;
+    const auto samplesInOneMs = sampleRate / 1000.0;
+    static constexpr auto fadeLengthInMs = 5;
+    fadeLengthInSamples_ = static_cast<int>(samplesInOneMs) * fadeLengthInMs;
 
     return true;
 }
@@ -98,8 +97,8 @@ clap_process_status Plugin::process(const clap_process* process) noexcept
     float** output = process->audio_outputs[0].data32;
     const auto outputChannelsCount = process->audio_outputs->channel_count;
 
-    auto event = process->in_events;
-    auto eventsSize = event->size(event);
+    const auto event = process->in_events;
+    const auto eventsSize = event->size(event);
 
     const clap_event_header_t* nextEvent{nullptr};
     uint32_t nextEventIndex{0};
@@ -112,14 +111,15 @@ clap_process_status Plugin::process(const clap_process* process) noexcept
     {
         while (nextEvent && nextEvent->time == index)
         {
-            auto gainValue = reinterpret_cast<const clap_event_param_value*>(nextEvent);
+            const auto gainValue = reinterpret_cast<const clap_event_param_value*>(nextEvent);
 
             if (nextEvent->space_id != CLAP_CORE_EVENT_SPACE_ID ||
                 nextEvent->type != CLAP_EVENT_PARAM_VALUE)
             {
                 continue;
             }
-            else if (gainValue->param_id == gainPrmId_)
+
+            if (gainValue->param_id == gainPrmId_)
             {
                 targetGain_ = utils::toExponentialCurve(gainValue->value);
                 currentFadeIndex_ = 0;
@@ -143,7 +143,7 @@ clap_process_status Plugin::process(const clap_process* process) noexcept
                 gain_ = targetGain_;
             }
 
-            output[channel][index] = input[channel][index] * gain_;
+            output[channel][index] = input[channel][index] * static_cast<float>(gain_);
         }
     }
 
