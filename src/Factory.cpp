@@ -1,5 +1,9 @@
-#include "Plugin.h"
-#include <iostream>
+// #include "Plugin.h"
+import std;
+import Clap;
+import Plugin;
+#include <clap/private/macros.h>
+#include <clap/version.h>
 
 
 namespace
@@ -21,21 +25,24 @@ uint32_t getPluginCount(const clap_plugin_factory* /*factory*/)
 const clap_plugin_descriptor* getPluginDescriptor(const clap_plugin_factory* /*factory*/, const uint32_t index)
 {
     if (index == 0)
-        return &Plugin::descriptor;
+        return &GainPlugin::descriptor;
 
     return nullptr;
 }
 
 const clap_plugin* createPluginInstance(const clap_plugin_factory* /*factory*/, const clap_host* host, const char* plugin_id)
 {
-    if (strcmp(plugin_id, Plugin::descriptor.id) != 0)
+    // std::string_view pluginId{plugin_id};
+    // std::string_view descriptorId{GainPlugin::descriptor.id};
+    if (strcmp(plugin_id, GainPlugin::descriptor.id) != 0)
+    // if (pluginId != descriptorId)
     {
         std::cerr << "Error: plugin_id '" << plugin_id << "' not found!" << std::endl;
         return nullptr;
     }
 
     // Host will own 'plugin'
-    const auto plugin = new Plugin(host);
+    const auto plugin = new GainPlugin(host);
     return plugin->clapPlugin();
 }
 
@@ -57,7 +64,7 @@ const void* getFactory(const char* /*factory_id*/)
 extern "C"
 {
 
-CLAP_EXPORT const clap_plugin_entry clap_entry =
+CLAP_EXPORT __attribute__((used)) const clap_plugin_entry clap_entry =
 {
     .clap_version = CLAP_VERSION,
     .init = init,
